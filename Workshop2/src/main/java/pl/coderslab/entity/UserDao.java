@@ -9,10 +9,10 @@ import java.util.Arrays;
 
 public class UserDao {
     private static final String CREATE_USER_QUERY = "INSERT INTO users(username, email, password) VALUES (?, ?, ?)";
-    public static final String SQL_READ = "SELECT id,email,username,password FROM users where id = ?";
-    public static final String SQL_DELETE = "DELETE FROM users WHERE id =?";
-    public static final String SQL_UPDATE = "UPDATE users SET username = ?, email = ?, password = ? where id = ?";
-    public static final String SQL_FIND_ALL = "SELECT id,email,username,password FROM users";
+    private static final String SQL_READ = "SELECT id,email,username,password FROM users where id = ?";
+    private static final String SQL_DELETE = "DELETE FROM users WHERE id =?";
+    private static final String SQL_UPDATE = "UPDATE users SET username = ?, email = ?, password = ? where id = ?";
+    private static final String SQL_FIND_ALL = "SELECT id,email,username,password FROM users";
 
     public String hashPassword(String password) {
         return BCrypt.hashpw(password, BCrypt.gensalt());
@@ -99,10 +99,9 @@ public class UserDao {
         }
     }
     private User[] addToArray(User u, User[] users) {
-        User[] tmpUsers = Arrays.copyOf(users, users.length + 1); // Tworzymy kopię tablicy powiększoną o 1.
-        tmpUsers[users.length] = u; // Dodajemy obiekt na ostatniej pozycji.
-        return tmpUsers; // Zwracamy nową tablicę.
-
+        User[] tmpUsers = Arrays.copyOf(users, users.length + 1);
+        tmpUsers[users.length] = u;
+        return tmpUsers;
     }
 }
 
