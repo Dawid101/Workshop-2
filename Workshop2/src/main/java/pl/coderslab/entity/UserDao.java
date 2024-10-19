@@ -5,30 +5,17 @@ import org.mindrot.jbcrypt.BCrypt;
 import pl.coderslab.DbUtil;
 
 import java.sql.*;
+import java.util.Arrays;
 
 public class UserDao {
-    private static final String CREATE_USER_QUERY =
-            "INSERT INTO users(username, email, password) VALUES (?, ?, ?)";
-    ;
+    private static final String CREATE_USER_QUERY = "INSERT INTO users(username, email, password) VALUES (?, ?, ?)";
+    public static final String SQL_READ = "SELECT id,email,username,password FROM users where id = ?";
+    public static final String SQL_DELETE = "DELETE FROM users WHERE id =?";
+    public static final String SQL_UPDATE = "UPDATE users SET username = ?, email = ?, password = ? where id = ?";
+    public static final String SQL_FIND_ALL = "SELECT id,email,username,password FROM users";
 
     public String hashPassword(String password) {
         return BCrypt.hashpw(password, BCrypt.gensalt());
-    }
-    public String allUsers() {
-        String sqlAllUsers="SELECT * FROM users";
-       try(Connection conn = DbUtil.getConnection()){
-           PreparedStatement statement=conn.prepareStatement(sqlAllUsers);
-           ResultSet resultSet = statement.executeQuery(sqlAllUsers);
-           while (resultSet.next()) {
-               // Zakładając, że mamy dwie kolumny: id (typu int) i name (typu String)
-               int id = resultSet.getInt("id");
-               String name = resultSet.getString("username");
-               System.out.println("ID: " + id + ", Name: " + name);
-           }
-       }catch (SQLException e){
-           e.printStackTrace();
-       }
-       return null;
     }
 
     public User create(User user) {
@@ -41,9 +28,6 @@ public class UserDao {
             statement.executeUpdate();
             //Pobieramy wstawiony do bazy identyfikator, a następnie ustawiamy id obiektu user.
             ResultSet resultSet = statement.getGeneratedKeys();
-//            if (resultSet.next()) {
-//                user.setId(resultSet.getInt(1));
-//            }
             System.out.println("Użytkownik dodany do bazy");
             return user;
         } catch (SQLException e) {
@@ -53,38 +37,72 @@ public class UserDao {
     }
 
     public User read(int userId) {
-        String sqlRead = "SELECT * FROM users WHERE id = "+userId;
-        try(Connection conn=DbUtil.getConnection()){
-            PreparedStatement statement = conn.prepareStatement(sqlRead);
-            ResultSet resultSet = statement.executeQuery(sqlRead);
+        try (Connection conn = DbUtil.getConnection()) {
+            PreparedStatement statement = conn.prepareStatement(SQL_READ);
+            statement.setInt(1, userId);
+            ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
-                System.out.println(resultSet.getString("username"));
+                User user = new User();
+                user.setId(resultSet.getInt("id"));
+                user.setUserName(resultSet.getString("username"));
+                user.setEmail(resultSet.getString("email"));
+                user.setPassword(resultSet.getString("password"));
+                return user;
             }
-            else {
-                System.out.println("Brak w bazie użytkowinka o takim ID");
-                return null;
-            }
-        }catch (SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-    return null;
+        return null;
     }
+
     public void delete(int userId) {
-        String sqlDelete = "DELETE FROM users WHERE id = "+userId;
-        try(Connection conn=DbUtil.getConnection()){
-            PreparedStatement statement = conn.prepareStatement(sqlDelete);
-            int result = statement.executeUpdate(sqlDelete);
-            if (result == 1) {
-                System.out.println("Użytkownik o podanym ID został usunięty");
-            }
-            else {
-                System.out.println("Brak w bazie użytkowinka o takim ID");
-
-            }
-        }catch (SQLException e){
+        try (Connection conn = DbUtil.getConnection()) {
+            PreparedStatement statement = conn.prepareStatement(SQL_DELETE);
+            statement.setInt(1, userId);
+            statement.executeUpdate();
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
+    public void update(User user) {
+        try (Connection conn = DbUtil.getConnection()) {
+            PreparedStatement statement = conn.prepareStatement(SQL_UPDATE);
+            statement.setString(1, user.getUserName());
+            statement.setString(2, user.getEmail());
+            statement.setString(3, this.hashPassword(user.getPassword()));
+            statement.setInt(4, user.getId());
+            statement.executeUpdate();
+            System.out.println("Dane zostały zaktualizowane");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public User[] findAll() {
+        try (Connection conn = DbUtil.getConnection()) {
+            User[] users = new User[0];
+            PreparedStatement statement = conn.prepareStatement(SQL_FIND_ALL);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                User user = new User();
+                user.setId(resultSet.getInt("id"));
+                user.setUserName(resultSet.getString("username"));
+                user.setEmail(resultSet.getString("email"));
+                user.setPassword(resultSet.getString("password"));
+                users = addToArray(user, users);
+            }
+            return users;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    private User[] addToArray(User u, User[] users) {
+        User[] tmpUsers = Arrays.copyOf(users, users.length + 1); // Tworzymy kopię tablicy powiększoną o 1.
+        tmpUsers[users.length] = u; // Dodajemy obiekt na ostatniej pozycji.
+        return tmpUsers; // Zwracamy nową tablicę.
+
+    }
 }
 

@@ -5,28 +5,36 @@ import pl.coderslab.entity.UserDao;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Arrays;
 
 public class TaskManager {
     public static void main(String[] args) {
 
-//        User user1=new User();
-//        user1.setUserName("dawid1234");
-//        user1.setPassword("user1234");
-//        user1.setEmail("dawid010@gmail.com");
-//        User user2 = new User();
-//        user2.setUserName("dawid010");
-//        user2.setPassword("password1");
-//        user2.setEmail("dawid010@gmail.com");
-//        User user3=new User();
-//        user3.setUserName("arek_IT");
-//        user3.setPassword("qwe123");
-//        user3.setEmail("arooo@gmail.com");
+        UserDao userDao = new UserDao();
+        User user = new User();
+
+//        user.setUserName("Jakub");
+//        user.setEmail("kuba1@gmail.com");
+//        user.setPassword("1357");
+//        userDao.create(user);
 
 
-        UserDao userDao=new UserDao();
-//        userDao.create(user3);
-//        userDao.read(4);
-//        userDao.delete(3);
-        userDao.allUsers();
+//        User read = userDao.read(2);
+//        System.out.println(read);
+
+
+//        User userToUpdate = userDao.read(5);
+//        userToUpdate.setUserName("Arkadiusz");
+//        userToUpdate.setEmail("bomba@coderslab.pl");
+//        userToUpdate.setPassword("haslo");
+//        userDao.update(userToUpdate);
+
+//        userDao.delete(9);
+
+//        User[] all = userDao.findAll();
+//        for (User u : all) {
+//            System.out.println(u);
+//        }
+
     }
 }
