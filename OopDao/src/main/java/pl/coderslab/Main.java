@@ -9,11 +9,17 @@ import java.sql.SQLException;
 public class Main {
     public static void main(String[] args) {
         User user1 = new User();
-        user1.setUsername("Olcia19");
+        user1.setUsername("Dawid10");
         user1.setPassword("1234");
-        user1.setEmail("olcia19@gmail.com");
+        user1.setEmail("dawidson66@interia.com");
 
         UserDao userDao = new UserDao();
-        System.out.println(userDao.read(3).toString());
+
+        User user = userDao.read(1);
+        user.setUsername("Dawid10");
+        user.setPassword("1234");
+        user.setEmail("dawidson66@interia.com");
+        userDao.update(user);
+
     }
 }

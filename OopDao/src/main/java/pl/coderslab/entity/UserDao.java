@@ -11,6 +11,9 @@ public class UserDao {
             "INSERT INTO users(username, email, password) VALUES (?, ?, ?)";
     private static final String READ_USER_QUERY =
             "SELECT * FROM users WHERE id = ?";
+    private static final String UPDATE_USER_QUERY =
+            "UPDATE users SET username = ?, email = ?, password = ? WHERE id = ?";
+
 
     public String hashPassword(String password) {
         return BCrypt.hashpw(password, BCrypt.gensalt());
@@ -44,13 +47,26 @@ public class UserDao {
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 user.setId(resultSet.getInt(1));
-                user.setUsername(resultSet.getString(2));
-                user.setEmail(resultSet.getString(3));
+                user.setEmail(resultSet.getString(2));
+                user.setUsername(resultSet.getString(3));
             }
             return user;
         }catch (SQLException e){
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public void update(User user) {
+        try(Connection conn = DbUtil.getConnection()){
+            PreparedStatement preparedStatement = conn.prepareStatement(UPDATE_USER_QUERY);
+            preparedStatement.setString(1, user.getUsername());
+            preparedStatement.setString(2, user.getEmail());
+            preparedStatement.setString(3, hashPassword(user.getPassword()));
+            preparedStatement.setInt(3, user.getId());
+            preparedStatement.executeUpdate();
+        }catch (SQLException e){
+            e.printStackTrace();
         }
     }
 }
